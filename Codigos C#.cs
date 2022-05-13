@@ -1,4 +1,4 @@
-Alteração teste github 2ª vez
+Alteração teste github 2ª vez. Nova branch criada de nome "receiving"
 
 Acessar o Visal Studio via Terminal para acompanhar o curso CFB
 
