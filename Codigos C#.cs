@@ -1,3 +1,4 @@
+Alteração teste github
 
 Acessar o Visal Studio via Terminal para acompanhar o curso CFB
 
