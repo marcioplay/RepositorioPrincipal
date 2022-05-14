@@ -1,0 +1,1156 @@
+-- Cusrso SQL Server 2021 DevApender Banco AdventureWorks2017  --
+
+use AdventureWorks2017
+
+-- SELECT USANDO O DISTINCT --
+
+select top 10 * from HumanResources.Department
+select * from Person.Person
+select distinct FirstName from Person.Person
+
+-- Desafio
+--Quantos nome e sobrenosmes únicos temos na tabela person.person
+
+select distinct FirstName from Person.Person -- 1018
+select distinct LastName from Person.Person -- 1206
+
+-- SELECT USANDO O WHERE --
+
+select Name, * from Production.Product where Weight > 500 and Weight <= 700
+select * from HumanResources.Employee where MaritalStatus = 'm' and SalariedFlag = 1
+
+select * from Person.Person where FirstName = 'peter' and LastName = 'krebs'
+select EmailAddress  from Person.EmailAddress where BusinessEntityID = 26
+
+-- SELECT USANDO O COUNT --
+
+select COUNT(*)  from Person.Person
+select COUNT(title) as Titular from Person.Person -- O resultado irá retornar 1009 titulos
+select COUNT(distinct title)  as Titular from Person.Person -- O resultado será 6 tipos diferentes.
+
+--Desafio--
+
+-- 1º Quantos produtos tem cadstrados na tabela produtos
+select COUNT(*) as Qtd_Produtos from Production.Product
+select COUNT(Size) as Qtd_Tamanhos from Production.Product
+select COUNT(distinct Size) as Qtd_Tamanhos_Diferentes from Production.Product
+
+-- SELECT USANDO O TOP --
+
+select top 10 * from Person.Person
+
+-- SELECT USANDO O ORDER BY --
+
+select * from Person.Person order by FirstName asc
+select * from Person.Person order by LastName desc
+
+-- Desafio
+
+select top 10 ProductID  from Production.Product order by ListPrice desc -- Os mais caros
+select top 10 ProductID  from Production.Product order by ListPrice asc
+select top 4 Name, ProductNumber from Production.Product order by ProductID
+
+-- SELECT USANDO O BETWEEN --
+
+select * from Production.Product where ListPrice between 1000 and 1500 -- Resultado será 47
+select * from Production.Product where NOT ListPrice between 1000 and 1500 -- O resultado será o contrário devido ao NOT
+select * from HumanResources.Employee where HireDate between '2009/01/01' and '2010/01/01'
+select * from HumanResources.Employee where HireDate >= '2009/01/01' and HireDate <= '2010/01/01' --Mesmo resultado que usado com o between
+
+-- USANDO O OPERADOR IN --
+
+select * from Person.Person where BusinessEntityID IN (2,7,13) 
+select * from Person.Person where BusinessEntityID NOT IN (2,7,13)--Traz o resultado contrário do mostrado em cima
+
+-- USANDO O LIKE --
+
+Select * from Person.Person where FirstName like 'ovi%'
+
+-- DESAFIO DE FUNDAMENTOS --
+
+-- 1º Quantos produtos temmos cadastrados que custam mais de 1500 dolares?
+select COUNT(ListPrice) as 'Produtos' from Production.Product where ListPrice > 1500 -- Resultado 39 - 1 linhas
+
+-- 2º Quantas pessoas temos com o sobrenome que iniciam com a letra p?
+select COUNT(LastName) as 'Sobrenome' from Person.Person where LastName like 'p%'
+select * from Person.Person where LastName like 'p%'
+
+-- 3° Em quantas cidades uincas estão cadastradas os nossos clientes?
+select count(distinct City) as Qtd_Cidades from Person.Address -- O resultado será 575
+
+-- 4º Quais são as cidades unicas cadastradas no nosso sistema?
+select distinct(City)  from Person.Address -- Unicas 575 linhas
+
+-- 5º Quantos produtos vermelhos tem o preço entre 500 e 1000 dolares
+select * from Production.Product where Color = 'Red' and ListPrice between 500 and 1500 -- Resultado 22 linhas.
+
+-- 6º Quantos produtos cadastrados tem a palava 'Road' no nome dele
+select COUNT(*) from Production.Product where Name like '%road%'
+select * from Production.Product where Name like '%road%'
+
+-- FUNÇÕES DE AGREGAÇÃO AVG, SUM, MIN E MAX
+
+select top 10 * from Sales.SalesOrderDetail
+select SUM(lineTotal) as Valor_Total from Sales.SalesOrderDetail
+select MIN(lineTotal) as Menor_Valor from Sales.SalesOrderDetail
+select MAX(lineTotal) as Maior_Valor from Sales.SalesOrderDetail
+select AVG(lineTotal) as Média from Sales.SalesOrderDetail
+
+-- FUNÇÃO GROUP BY + DESAFIOS (INTERMEDIÁRIO)
+-- SINTAXE
+
+--select coluna1, funcaoAgregacao(coluna2) from tabela group by coluna1;
+select SpecialOfferID as Oferta , SUM(UnitPrice) as Soma_Total from Sales.SalesOrderDetail
+group by SpecialOfferID
+
+-- O resultado abaixo é o mesmo da projeção acima sendo que de forma solta e sem a soma e agrupamento
+select SpecialOfferID, 
+	   UnitPrice 
+	   from Sales.SalesOrderDetail 
+	   where SpecialOfferID = 9
+
+-- Desafio: Quando produtos foram vendidos até hoje
+select ProductID as Produto , COUNT(ProductID) as Contador from Sales.SalesOrderDetail
+group by ProductID
+
+select FirstName        as Primeiro_Nome, 
+	   COUNT(FirstName) as Acumulativo 
+	   from Person.Person
+       group by FirstName
+
+select Color, 
+       AVG(listPrice) as Valor_Média 
+	   from Production.Product
+       where Color = 'Silver'
+       group by Color
+
+-- DESAFIOS --
+
+-- Quantas pessoas tem o mesmo middlename agrupados por midllename
+
+select MiddleName       as Nome_do_Meio, 
+       COUNT(FirstName) as Quantidade 
+	   from Person.Person
+       group by MiddleName
+
+select ProductID, 
+       AVG(OrderQty) as Media 
+	   from Sales.SalesOrderDetail
+       group by ProductID
+
+select top 10 sum(LineTotal) as Total 
+              from Sales.SalesOrderDetail
+              group by ProductID
+              order by sum(LineTotal) desc
+
+select ProductID        as ID_Produto, 
+       COUNT(ProductID) as Qtd_Produto, 
+       AVG(WorkOrderID) as Media_Ordem_Serviço  
+       from Production.WorkOrder
+       group by ProductID
+
+-- USANDO O HAVING --
+
+--SELECT COLUNA1, SUM(COLUNA2)
+--GROUP BY COLUNA1
+-- HAVING SUM(COLUNA2) > 100
+
+       select firstname as Primeiro_Nome, 
+       COUNT(firstname) as Qtd_Nome from Person.Person
+       group by FirstName
+       having COUNT(firstname) > 10
+
+-- Queresmos saber quais produtos que no total de vendas estão entre 162k and 500k
+
+select ProductID as ID_Produto, SUM(LineTotal) as Total_de_Vendas from Sales.SalesOrderDetail
+group by ProductID
+having SUM(LineTotal) between 1620000 and 5000000
+
+-- Quais os nomes tem a ocorrências maior que 10x e seu titulo é igual a 'MR.'
+
+select FirstName, COUNT(FirstName) from Person.Person
+where Title = 'Mr.'
+group by FirstName
+having COUNT(FirstName) > 10
+
+-- Desafio
+
+-- Estamos querendo identificar as provincias (satateProviceID) com o maior numero de cadastros no nosso sistema
+-- É preciso encontrar quais provincias estão registradis no babco de dados mais que 1000 vezes.
+
+select * from Person.Address
+select StateProvinceID as ID_Provincia, 
+COUNT(StateProvinceID) as Quantidade_Provincia from Person.Address
+group by StateProvinceID
+having COUNT(StateProvinceID) > 1000
+
+-- Quais produtos estão trazendo em média no minimo 1 milhão em total de vendas .
+
+select * from Sales.SalesOrderDetail
+select ProductID, avg(LineTotal) 
+from Sales.SalesOrderDetail
+group by ProductID
+having avg(LineTotal) < 10000000
+
+-- USANDO O INNER JOIN
+ 
+ -- Trazer as colunas: BusinnesEntityID, Firstname, LastName, EmailAddress
+
+select top 10 * from Person.Person
+select top 100 * from Person.EmailAddress
+
+select 
+      pp.BusinessEntityID as ID,
+      pp.FirstName        as Nome,
+      pp.LastName         as Sobrenome,
+      pe.EmailAddress     as Email
+      from Person.Person pp
+      inner join Person.EmailAddress pe 
+	  WITH(NOLOCK) ON pp.BusinessEntityID = pe.BusinessEntityID
+
+-- Desafio
+
+-- Trazer os nomes dos produtos e suas subcategorias
+-- Colunas: ListePrice, Nome do produto, Nome da Subcategoria
+-- Tabelas: 
+select top 10 * from Production.Product
+select top 10 * from Production.ProductSubcategory
+
+select 
+      pp.ListPrice     as Lista_de_Preços,
+      pp.ProductNumber as Nome_Produto,
+      pps.Name         as Nome_Subcategoria
+      from Production.Product pp
+      inner join Production.ProductSubcategory pps 
+	  WITH(NOLOCK) ON pp.ProductSubcategoryID = pps.ProductSubcategoryID
+
+--	Desafio
+-- Colunas: BusinessEntityID, Name, PhonenumberType, PhoneNumber
+
+select top 10 * from Person.PhoneNumberType
+select top 10 * from Person.PersonPhone
+
+select 
+      ppp.BusinessEntityID  as ID,
+      ppt.Name              as Categoria,
+      ppp.PhoneNumberTypeID as Tipo_Telefone,
+      ppp.PhoneNumber       as Número_Telefone
+      from Person.PhoneNumberType ppt
+      inner join Person.PersonPhone ppp 
+	  with(nolock) on ppt.PhoneNumberTypeID = ppp.PhoneNumberTypeID
+
+-- Desafio
+-- Join usando as tabelas abaixo
+
+select top 10 * from Person.StateProvince
+select top 10 * from Person.Address
+
+select 
+      pa.AddressID       as ID_Produto,
+      pa.City            as Cidade,
+      pa.StateProvinceID as ID_Estado,
+      ps.Name            as Nome_Estado
+      from Person.StateProvince ps
+      inner join Person.Address pa 
+	  with(nolock) on ps.StateProvinceID = pa.StateProvinceID
+
+select 
+* from Person.StateProvince ps
+full outer join Person.Address pa  ON ps.StateProvinceID = pa.StateProvinceID
+
+SELECT 
+* FROM Person.StateProvince ps
+LEFT JOIN Person.Address pa  ON ps.StateProvinceID = pa.StateProvinceID
+
+
+SELECT 
+* FROM Person.StateProvince ps
+RIGHT JOIN Person.Address pa  ON ps.StateProvinceID = pa.StateProvinceID
+
+-- USANDO O LEFT JOIN --
+
+-- DESAFIO
+
+-- Saber quantas pessoas tem um cartão de crédito registrado --
+
+select top 10 * from Person.Person
+select top 10 * from Sales.PersonCreditCard
+
+-- No select abaixo será mostrado só os campos que existem valores conrrespondentes em ambas as tabelas --
+select * from Person.Person pp
+inner join Sales.PersonCreditCard sp on pp.BusinessEntityID = sp.BusinessEntityID -- Com o INNER JOIN, O Resultado será 19.118 linhas
+
+-- No select baixo, será retornado tudo da tebela Sales.PersonCreditcard. O que não tiver valor conrrespondente, será preenchido com NULL.
+select * from Person.Person pp
+left join Sales.PersonCreditCard sp on pp.BusinessEntityID = sp.BusinessEntityID -- Com o LEFT JOIN, o resultado será 19.972 linhas.
+
+-- Filtrando a consulta para trazer só as pessoas que não tem cartão de crédito registrado.
+select * from Person.Person pp
+left join Sales.PersonCreditCard sp on pp.BusinessEntityID = sp.BusinessEntityID
+where sp.BusinessEntityID is null -- Usando o IS NULL o resultado será 854 linhas.
+
+-- USANDO O UNION --
+
+-- SINTAXE DO UNION
+
+-- Usando o UNION, será consolidado todos os valores ignorando as duplicatas. Para trazer todos os valores, inclusive as duplicatas será necessáro usar o UNION ALL
+-- SELECT coluna1, coluna2 from tabela1
+-- UNION
+-- SELECT coluna1, coluna2 from tabela2
+
+SELECT [ProductID],[Name] FROM [AdventureWorks2017].[Production].[Product] WHERE Name LIKE '%CHAIN%'
+UNION
+SELECT [ProductID],[Name] FROM [AdventureWorks2017].[Production].[Product] WHERE Name LIKE '%DECAL%'
+
+select top 10 * from HumanResources.Employee
+select JobTitle, MaritalStatus from HumanResources.Employee where JobTitle = 'Janitor'
+union
+select JobTitle, MaritalStatus from HumanResources.Employee where MaritalStatus = 'M'
+
+select Title, FirstName, MiddleName from Person.Person where Title = 'Mr'
+union
+select Title, FirstName, MiddleName from Person.Person where MiddleName = 'A'
+
+-- USANDO O DATEPART --
+
+select top 10 * from Person.Person
+
+select COUNT(BusinessEntityID) as Qtd_Usuários, DATEPART(MONTH, ModifiedDate) AS Mês_de_Alteração from Person.Person
+group by DATEPART(MONTH, ModifiedDate)
+order by Mês_de_Alteração
+
+select top 10 * from Person.PersonPhone
+select COUNT(BusinessEntityID) as ID_Usuários, DATEPART(DAY, ModifiedDate) as Dia_da_Alteração from Person.PersonPhone
+group by DATEPART(DAY, ModifiedDate)
+order by Dia_da_Alteração
+
+select COUNT(BusinessEntityID) as 'ID usuário', DATEPART(MONTH, ModifiedDate) as 'Mês da alteração' from Person.PersonPhone
+group by DATEPART(MONTH, ModifiedDate)
+order by [Mês da alteração]
+
+select COUNT(BusinessEntityID) as ID_USUARIO, DATEPART(MONTH, ModifiedDate) as MES_ALTERAÇÃO from Person.PersonPhone
+group by DATEPART(MONTH, ModifiedDate)
+order by MES_ALTERAÇÃO
+
+select SUM(TotalDue) as Valor_Total, DATEPART(MONTH, OrderDate) as Mês from Sales.SalesOrderHeader
+group by DATEPART(MONTH, OrderDate)
+order by Mês
+
+select top 10 * from Person.Person
+select DISTINCT DATEPART(YEAR, ModifiedDate) AS USUARIO_MODIFICADOS from Person.Person
+ORDER BY 1 ASC
+
+select DISTINCT DATEPART(YEAR, ModifiedDate) AS USUARIO_MODIFICADOS from Person.Person
+ORDER BY 1 DESC
+
+
+-- MINIPULAÇÃO DE STRINGS --
+
+-- USANDO O CONCAT - JUNTANDO AS STRINGS --
+select * from Person.Person
+select top 10 CONCAT(FirstName, ' ' , LastName) as Nome_Sobrenome  from Person.Person 
+
+-- DEIXANDO TUPO MAIUSCULO COM O UPPER
+select UPPER(FirstName) from Person.Person
+
+-- DESCOBRINDO O TAMMAHO DE UMA STRING COM O "LEN" --
+select FirstName, LEN(FirstName) as Qtd_Caracteres from Person.Person
+
+-- EXTRAINDO INDICES COM O SUBSTRING --
+select SUBSTRING(FirstName, 1,3) from Person.Person -- O resultado será a exibição dos 3 primeiros caracteres
+
+-- SUBSTITUINDO CARACTERES COM O REPLACE --
+select top 10 ProductNumber, REPLACE(ProductNumber, '-', '#') as Nome_Produto from Production.Product
+
+-- MULTIPLICANDO COLUNAS E ARREDONDANDO PARA BAIXO O VALOR USANDO O 'FLOOR'
+
+select top 10 * from Production.Product 
+select FLOOR(ss.UnitPrice * ss.UnitPriceDiscount) AS VALOR_TOTAL from Sales.SalesOrderDetail ss
+where ss.UnitPrice <> 2024.994 and ss.UnitPriceDiscount > 0
+ORDER BY ss.UnitPrice DESC
+
+-- OPERAÇÕES MATEMÁTICAS --
+
+select top 10 UnitPrice + LineTotal as Total_Soma from Sales.SalesOrderDetail
+select top 10 UnitPrice / LineTotal as Total_Divisão from Sales.SalesOrderDetail
+select top 10 UnitPrice * LineTotal as Total_Multiplicação from Sales.SalesOrderDetail
+select top 10 UnitPrice - LineTotal as Total_Subtração from Sales.SalesOrderDetail
+
+-- SUBQUERYS **
+
+-- Monte um relatório onde mostre todos os protudos cadastrados que tem o preço de venda acima da média --
+select AVG(ListPrice) from Production.Product
+select * from Production.Product where ListPrice > 438.6662
+
+-- JEITO MAIS FÁCIL E DINÂMICO --
+select * from Production.Product where ListPrice > (select AVG(ListPrice) from Production.Product)
+
+-- PRÁTICAS
+-- Eu quero saber o nome dos meus funcionários que tem o cargo de 'Designer enginer'
+select * from Person.Person
+select * from HumanResources.Employee
+
+select FirstName as Primeiro_Nome from Person.Person where BusinessEntityID In 
+(select BusinessEntityID from HumanResources.Employee where JobTitle = 'Design Engineer')
+
+-- Abaixo utilizando a mesma consulta só que com o JOIN
+
+select pp.FirstName  from Person.Person pp
+inner join HumanResources.Employee he on pp.BusinessEntityID = he.BusinessEntityID
+where JobTitle = 'Design Engineer'
+
+-- Desafio --
+-- Trazer todos os endereços que estão no estaod de 'Alberta'
+select top 10 * from Person.Address
+select top 10 * from Person.StateProvince
+
+select AddressLine1 as Endereços from Person.Address where StateProvinceID 
+in (select StateProvinceID from Person.StateProvince where Name = 'Alberta')
+
+select * from Person.Address where StateProvinceID 
+in (select StateProvinceID from Person.StateProvince where Name = 'Alberta')
+
+select * from Production.Product where ListPrice > (select avg(ListPrice) from Production.Product) 
+
+select top 10 * from Person.Person
+select top 10 * from HumanResources.Employee
+
+select FirstName from Person.Person where BusinessEntityID in (select BusinessEntityID from HumanResources.Employee where JobTitle = 'Design Engineer')
+
+select top 10 * from Person.Address
+select top 10 * from Person.StateProvince
+
+select * from Person.Address where StateProvinceID in (select StateProvinceID from Person.StateProvince where name = 'Alberta')
+
+
+-- PROCEDURES PARA ALTERAR A COLUNA DE UMA TABELA
+
+EXEC sp_RENAME 'NomeTabela.NomeColunaAtual', 'NomeColunaNova', 'COLUMN'
+
+-- PROCEDURE PARA ALTERAR O NOME DE UMA TABELA
+
+EXEC sp_rename 'NomeDaTabelaAtual', 'NomeDaNovaTabela'
+
+
+-- APAGANDO UMA TABELA --
+
+DROP TABLE NomeDaTabela
+
+-- observação: Só será possivel deletar a tabela, se a mesma não tiver referencia com outra.
+
+-- LIMPANDO TADOS DE UMA TABELA --
+
+TRUNCATE TABLE NomeDatabela
+
+
+CREATE TABLE CANAL (
+	Canalid INT PRIMARY KEY,
+	Nome VARCHAR(150) not null,
+	ContagemInscritos INT DEFAULT 0,
+	DatadeCriacao DATETIME not null
+)
+
+CREATE TABLE VIDEO (
+	Videoid INT PRIMARY KEY,
+	Nome VARCHAR(150) NOT NULL,
+	Visualizacoes INT DEFAULT 0,
+	Likes INT DEFAULT 0,
+	Deslikes INT DEFAULT 0,
+	Duracao  INT DEFAULT 0,
+	Canalid INT FOREIGN KEY REFERENCES CANAL(Canalid)
+)
+
+select * from canal
+select * from VIDEO
+
+CREATE TABLE CURSO (
+	IDCurso INT IDENTITY(1,1) PRIMARY KEY, -- Sintaxe para tornar autoincremente a chave.
+	NomeCurso VARCHAR(100) NOT NULL
+)
+
+
+SELECT * FROM CURSO
+
+INSERT INTO CURSO (NomeCurso) VALUES('Curso de Inglês')
+INSERT INTO CURSO (NomeCurso) VALUES('Curso de HTML')
+INSERT INTO CURSO (NomeCurso) VALUES('Curso de CSS')
+INSERT INTO CURSO (NomeCurso) VALUES('Curso de SQL')
+
+CREATE TABLE PROFESSOR (
+	IdProfessor INT IDENTITY(1,1) PRIMARY KEY,
+	Nome VARCHAR(100) NOT NULL
+)
+
+
+CREATE TABLE CURSO (
+IDCURSO INT PRIMARY KEY,
+NOME VARCHAR(50) NOT NULL,
+FK_IDPROFESSOR INT FOREIGN KEY REFERENCES PROFESSOR(IDPROFESSOR) -- Sintaxe para criação de FK
+)
+
+-- CRIANDO VIEWS --
+--SINTAXE
+
+--CREATE VIEW [NOME SILPLIFICADO] AS -- Tudo que estiver depois do 'AS' será o que vai ser projetado.
+--SELECT FirstName, LastName, MiddleName, * FROM Person.Person
+--WHERE Title = 'Ms.'
+
+-- PARA CHAMAR UMA VIEW
+
+--SINTAXE
+
+select * from [NOME SILPLIFICADO]
+
+-- USANDO O SELF JOIN --
+
+-- Saber quais usuário tem o mesmo email cadastrado. --
+-- Atenção!! Só funciona usando o alias 'AS'. Ou seja, apelidando as colunas e tabelas.
+
+--select top 500 a.sNmUsuario, a.sDsEmail ,b.sNmUsuario, b.sDsEmail from USUARIO a, USUARIO b
+--where a.sDsEmail = b.sDsEmail
+
+-- OPERAÇÕES MATEMÁTICAS NO SQL --
+
+select 8 * 2 AS RESULTADO
+select 589.10 + 2050.58 AS RESULTADO
+select 789 - (45 + 300) AS RESULTADO -- Pimeiro se resolve o que está dentro dos ()
+
+select 49 / 2 as resultado -- No SQL, o resultado na divisão será arredondado para baixo
+select 49.0 / 2 as resultado -- Na divisão, para o resultado ser exato, é necessário adicionar o zero.
+
+select SQUARE(2) AS RESULTADO -- A função SQUARE() retorna a raiz quedrada de um número.
+select POWER(3,3) -- Função POWER() 3 X 3 X 3
+
+
+-- PORCENTAGEM --
+select 100 * 0.9 AS 'RESULTADO_%'
+select 100 * 0.1 AS 'RESULTADO_%'
+select 100 * 0.01 AS 'RESULTADO_%'
+
+--ABS --
+select abs(100-999) as RESULTADO
+
+-- EXTRAIR A RAIZ QUADRADA DE UM NÚMERO USANDO O SQRT() --
+select SQRT(49) AS RESULTADO -- 
+
+select top 10 * from Person.Person
+select * from Person.Person where Title IS NOT NULL
+select count(DISTINCT FirstName) from Person.Person 
+
+-- GETDATE
+
+select getdate() as DATA_HORA --
+select convert(char,getdate(), 103) as FORMATO_BRAZIL -- Tráz o formato de dia/mes/ano brasileiro
+select convert(char,getdate(), 102) as FORMATO_BRAZIL -- Traz o formato invertido
+select convert(char,getdate(), 1) -- Formato com dois diditos na data - Atenção: Consultar
+-- a tabela ANSI, para ver os códigos
+
+select year(getdate()) as ANO
+select month(getdate()) as MÊS
+select day(getdate()) as DIA
+
+-- DATEPART
+
+select datepart(year, getdate()) as ANO_ATUAL -- Extraindo apenas o ano atual.
+select datepart(month, getdate()) as MÊS
+select datepart(day, getdate()) as DIA
+select distinct datepart(year, ModifiedDate) as ANO, datepart(month, ModifiedDate) as MÊS  from Person.Person
+order by 2
+
+-- DATEADD
+
+select dateadd(year, -2, getdate()) as ANO -- Subtrai dois anos da data atual
+select convert(date, dateadd(year, -2, getdate())) -- Extraindo e convertendo apenas o ano/mes/dia
+
+select dateadd(month, 3, getdate()) as Month_Plus-- Adiciona mais 3 meses da data atual
+select convert(date, dateadd(day, 14, getdate())) as Day_Plus-- Adiciona 14 dias da tada atual e remove a hora
+
+
+select dateadd(HOUR, 4, GETDATE()) as Hour_Plus-- Adiona 4 horas da hora atual
+select convert(datetime, dateadd(HOUR, 4, getdate())) -- Adiciona 4 horas da hora atual e remove a data
+select convert(smalldatetime, dateadd(hour, 4, getdate())) -- Adiciona 4 horas da hora atual e remove a data
+
+select CONVERT(datetime, DATEADD(HOUR, 4, GETDATE())) as DATE_T,
+       CONVERT(smalldatetime, DATEADD(HOUR, 4, GETDATE())) AS DATE_S
+
+-- DATEDIFF
+
+select DATEDIFF(MONTH, GETDATE(), DATEADD(YEAR, 2, GETDATE())) as DIFERENCA_MESES -- Diferenças entre o mês atual até dois anos a mais.
+select DATEDIFF(DAY, GETDATE(), DATEADD(year, 3,GETDATE())) aS DIAS -- Quantidade de dias, apartir do dia atual, mais 4 anos
+
+select CONVERT(datetime, DATEADD(HOUR, 4, GETDATE())) -- Adiciona 4 horas da hora atual e remove a data
+--Analise sendo retomada após o retorno do N1
+
+--Supenso em: 18/02/2022 15:36:35
+--Retomada em: 21/02/2022 09:50:35
+--Diferença em horas: 4hrs
+--Novo Prazo: 23/02/2022 09:12
+
+select CONVERT(datetime, DATEADD(HOUR, 4, '18/02/2022 15:36:35')) AS DIFERENCA_EM_HORAS -- Diferença em horas para a data atual
+
+-- FUNÇÕES DE TEXTO ASCII, NCHAR, CHARINDEX, CONCAT, _WS, DIFFERENCE--
+
+-- ASCII
+select ASCII('a') -- Revela a posição/código do caractere na tabela ASCII
+select ASCII('A')
+select ASCII('9')
+
+-- NCHAR
+select NCHAR(65) -- Ao contrário do ascii, informando o valor numerico do tipo int. Será exibida a letra correspondente.
+select NCHAR(63)
+
+-- CHAR
+select CHAR(65) -- Mesma coisa do NCHAR
+select CHAR(60)
+
+--CHARINDEX -Pesquisa um caracter em um sequencial de 8.000 cataracteres
+
+select CHARINDEX('a','Marcio') -- Resultado ele sinaliza o a na posição 2
+select CHARINDEX('a','Marcio',3) --Resultado será o zero, devido a solicitação ter sido a partir da posição 3. E não há mais
+-- a letra 'a' após a posição 2.
+select top 10 * from Person.Person
+select FirstName, CHARINDEX('Dylan',FirstName,1) from Person.Person
+
+-- No select abaixo, será exibido todos os nomes que começção com "Dylan" na primeira posição. Pois tem a condifional 0 no final
+select FirstName, CHARINDEX('Dylan',FirstName,1) from Person.Person 
+where CONVERT(int, CHARINDEX('Dylan',FirstName,1)) > 0
+
+select FirstName, CHARINDEX('Dylan',FirstName,1) from Person.Person 
+where CHARINDEX('Dylan',FirstName,1) <> '1' 
+
+-- CONCAT - Seve para concatenar várias colunas em um único select.
+-- EXEMPLOS REALIZADOS NO PEINTEGRADO
+
+--select top 5 * from USUARIO
+--select top 5  * from EMPRESA
+
+select CONCAT(u.sNmUsuario, ' || ', u.sDsEmail, ' || ', sNrTelefone, ' || ',e.sNmEmpresa) AS Nome_Email_Tel, e.sNmFantasia as UG from USUARIO u
+inner join EMPRESA e on u.nCdEmpresa = e.nCdEmpresa where e.sNmFantasia = 'ALEPE'
+
+
+-- CONCAT_WS - Faz a mesma coisa do concat, só que com a diferença, de colocar uma unica vez o separador
+-- seria no començo da sentenção. Exemplo:
+
+select CONCAT_WS(' - ',u.sNmUsuario, u.sDsEmail,
+'Inicio_Cadastro: ' + TRIM(CONVERT(char, u.tdtcadastro)),
+'Validade_Senha: '  + TRIM(CONVERT(char, u.tDtValidadeSenha)))
+from USUARIO u inner join EMPRESA e on u.nCdEmpresa = e.nCdEmpresa where e.sNmFantasia = 'ALEPE'
+
+-- FUNÇÕES DE TEXTO - FORMAT, LEFT, RIGHT, LEN, LOWER E UPPER
+
+select CONVERT(char, GETDATE(), 103) as Data
+
+DECLARE @DT DATETIME  = CONVERT(char, GETDATE(), 103) 
+SELECT @DT
+
+DECLARE @DT DATETIME = GETDATE() ;
+select @DT
+
+DECLARE @DT DATETIME = GETDATE();
+select FORMAT(@DT, 'd', 'en-us') as Americano, -- Formato americado de data
+       FORMAT(@DT, 'd', 'zh-cn') as Chines_Simplificado -- Formato Chinês
+
+select top 10 * from Production.Product
+select FORMAT(pp.ListPrice, 'N', 'en-us') as Padrão_Americano,
+       FORMAT(pp.ListPrice, 'G','en-us') as Formato_Geral,
+	   FORMAT(pp.ListPrice, 'C', 'pt-BR') as Formato_Monetário_Brasil,
+	   FORMAT(pp.ListPrice, 'C', 'en-us') as Formato_Monetário_Americano,
+	   FORMAT(pp.ListPrice, 'C', 'de-de') as Formato_Monetário_Alemão,
+	   FORMAT(pp.ListPrice, 'C', 'de-at') as Formato_Monetário_Austriaco
+from Production.Product pp
+order by pp.ListPrice desc
+
+select FORMAT(ss.UnitPrice, 'C', 'pt-br') as Valor_Reais from Sales.SalesOrderDetail ss
+
+-- FUNÇÃO LEFT - EXTRAI DA ESQUERDA CARACTERES DE UM TEXTO OU CAMPO.
+
+SELECT LEFT(pp.Name, 5) FROM Production.Product pp
+SELECT LEFT('Marcio Rodrigo', 6)
+SELECT DISTINCT LEFT(pp.FirstName, 7) FROM Person.Person pp
+
+-- FUNÇÃO RIGHT - EXTRAI DA DIREITA CARACTERES DE UM TEXTO OU CAMPO.
+
+SELECT RIGHT(pp.Name, 5) FROM Production.Product pp
+SELECT RIGHT('Marcio Rodrigo', 6)
+SELECT DISTINCT RIGHT(pp.FirstName, 7) FROM Person.Person pp
+select left(pp.FirstName,3) + right(pp.LastName, 5) as Nome_Sobrenome from Person.Person pp -- Concatenando
+
+-- FUNÇÃO LEN RETORNA O TAMANHO DE UM CAMPO
+select LEN('Marcio_Rodrigo_Batista_Porto_Bezerra') as Qtd_Caracteres
+select LEN('Este é um curso de SQL') as Qtd_Caracteres
+select LEN(pp.FirstName) as Qtd_Caracteres, pp.FirstName as Primeiro_Nome from Person.Person pp
+select  pp.FirstName as Nome, MAX(LEN(pp.FirstName)) AS Qtd_Maior from Person.Person pp
+group by pp.FirstName
+select pp.LastName, MAX(LEN(pp.LastName)) as Maior_Sobrenome from Person.Person pp
+select MIN(LEN(pp.LastName)) as Menor_Sobrenome from Person.Person pp
+
+-- FUNÇÃO UPPER - COLOCA TODOS OS CARACTERES EM MAIUSCULO
+select UPPER(pp.FirstName) as Nome from Person.Person pp
+
+-- FUNÇÃO LOWER - COLOCA TODOS OS CARACTERES EM MINUSCULO
+select top 10 * from Person.Person pp
+select LOWER(pp.PersonType) as Tipo_Pesso from Person.Person pp
+
+select top 10 * from Person.Person
+
+-- FUNÇÕES DE TEXTO: LTRIM, RTRIM, PATINDEX, REPLACE, REPLICATE E REVERSE.
+
+-- FUNÇÃO LTRIM
+select LTRIM('     Márcio') -- Remove os espaçõs a esqueda da string
+declare @vartexto varchar(max);
+	set @vartexto = '    Esse é um texto para o teste do LTRIM';
+
+	select LTRIM(@vartexto) as Teste -- Todo o espaço a esquerda foi eliminado
+	select Resultado = LTRIM(@vartexto) -- Declarando a variável ao elemento resultado
+
+-- FUNÇÃO RTRIM
+select RTRIM('Márcio   ') -- Remove os espaçõs a direita da string
+
+declare @vartexto2 varchar(max);
+	set @vartexto2 = 'Esse é um texto para o teste do RTRIM      ';
+
+	select RTRIM(@vartexto2)
+
+-- FUNÇÃO PATINDEX
+select PATINDEX('%dri%', 'Marcio Rodrigo') -- Extrai a informação da posição onde começa o que está entre %%
+select PATINDEX('%a', 'Terça') -- Extrai todas as posições onde a posição a é no final
+select PATINDEX('t%', 'Terça') -- Extrai todas as posições onde a posição t é no começo
+select Posicao = PATINDEX('%Por%', 'Marcio Porto') -- Traz o resultado de posição 8
+
+declare @vartexto3 varchar(max)
+	set @vartexto3 = 'Esse é um curso so alexandro trovato no youtube'
+	
+	select lower(@vartexto3)
+
+-- SUBSTRING
+select SUBSTRING(@vartexto3, PATINDEX('%trovato%', @vartexto3), 7 ) -- Vai exibir o resultado da variavel a partir da posição e extrair 7
+
+-- REPLACE
+select REPLACE('Marcio Batista Bezerra', 'a', '@') -- O resultado será substituir o 'a' pelo '@'
+select REPLACE(REPLACE('Marcio Batista Bezerra', 'a', '@'), 'r', '#') -- Replace aninhado.
+
+select pp.FirstName, pp.LastName, replace(pp.Title, 'ms', 'Senhora')from Person.Person pp
+
+declare @varcpf varchar(max)
+	set @varcpf = '032.340.004-33'
+
+	select REPLACE(REPLACE(@varcpf, '.', ''), '-', '') as CPF -- Retirando os sinais de ponto e traço do cpf.
+
+-- REPLICATE
+
+select REPLICATE('x', 50)
+select pp.FirstName + REPLICATE('x', 30 - LEN(pp.FirstName)) from Person.Person pp -- Fixando a quantidade em 30
+select LEN(pp.FirstName + REPLICATE('x', 30 - LEN(pp.FirstName))) from Person.Person pp -- Auditando a consulta acima
+
+-- REVERSE
+select REVERSE('Marcio Rodrigo') -- O resultado é a string de traz pra frente.
+
+-- FUNÇÕES DE TEXTO STRING_AGG, SPACE E STUFF.
+
+-- USANDO O SPACE
+
+declare @vnome varchar(max);
+		set @vnome = 'Marcio Rodrigo';
+select @vnome + SPACE(25)
+select @vnome + SPACE(25 - LEN(@vnome));
+select top 10 * from Person.Person pp
+select pp.FirstName + SPACE(9 - LEN(pp.FirstName)) + 'x' from Person.Person pp
+
+-- STRING_AGG
+-- Contatena oas valores das expressões de cadeia de caracteres e coloca os valores do separador
+-- entre eles
+
+select STRING_AGG(CONVERT(nvarchar(max),title),',') as Registro_Encadeado from Person.Person
+
+select DATEPART(YEAR, pp.ModifiedDate) AS Ano, 
+		STRING_AGG(convert(nvarchar(max), ISNULL(pp.FirstName,'0')), '-') as Registro
+from Person.Person pp
+group by DATEPART(YEAR, pp.ModifiedDate) 
+order by 1
+
+-- STUFF
+
+select STUFF('abcdef',3,5,'12345') as Novo_Registro -- Substitui 5 elementos a partir do 3º
+
+declare @date date;
+--declare @nome varchar(max);
+--declare @sobrenome varchar(max);
+		--set @nome = 'Marcio';
+		--set @sobrenome = 'Rodrigo';
+		set @date = '2009-01-07 00:00:00.000'
+--select @nome + ' ' + @sobrenome Nome_Sobrenome;
+select convert(char,@date, 103) as Formato_Brasil
+
+--AULA 22 FUNÇÕES: SUBSTRING, TRIM, UPPER, LOWER, TRANSLATE, CASE WHEN E IIF --
+
+select SUBSTRING('Marcio Rodrigo',1,6) as Nome_Parcial -- Vai extrair 6 caracteres a partir da 1ª posição
+select pp.FirstName, SUBSTRING(pp.FirstName, 1, 5) as Nome_Parcial from Person.Person pp
+
+-- CASE
+select pp.FirstName, 
+CASE SUBSTRING(pp.FirstName,1, CHARINDEX('',pp.firstname,CHARINDEX('',pp.FirstName)+1))
+    WHEN '' THEN
+	pp.FirstName
+    ELSE
+	 SUBSTRING(pp.FirstName,1, CHARINDEX('',pp.firstname,CHARINDEX('',pp.FirstName)+1))
+	END as Nome_Extraido
+from Person.Person pp;
+
+-- TRANSLATE
+select TRANSLATE('2*[3+7]/{8-2}','[]{}','()()'); -- Substirui simbolos dentro de uma sctring
+select TRANSLATE('Marcio142857','a14257','@abcde')
+
+--REPLACE
+declare @operacao varchar(max) = '2*[3+7]/{8-2}'
+--select @operacao
+--select REPLACE('marcio','m','M')
+--select REPLACE(@operacao,'2','10')
+
+-- Mesma expressão usada pelo o TRANSLATE. Fica mais complexo e grande o código.
+select REPLACE(
+          REPLACE(
+			REPLACE(
+               REPLACE(@operacao,'[','('),
+			   ']',')'),
+				'{','('),
+					'}',')')
+
+-- TRIM
+select TRIM('    Marcio rodrigo ');
+select TRIM('   rodrigo      Marcio ')
+
+-- WHILE -- REMOVENDO OS ESPAÇOS ENTRE AS PALAVRAS
+declare @vstring varchar(100) = 'Marcio     sql         |';
+while CHARINDEX('  ',@vstring) >0
+begin
+	set @vstring = REPLACE(@vstring,'  ',' ')
+	end
+	select @vstring as Sem_Espacos;
+
+
+--UTILIZANDO O BANCO ADVENTUREWORKS - FUNÇÕES UNION E UNION ALL.
+
+-- UNION - DEVE TER O MESMO NÚMERO DE EXPRESSÕES,COLUNAS E ORDENS.
+select pp.ProductNumber, pp.SafetyStockLevel, pp.DaysToManufacture, pp.Class, pp.Color  from Production.Product pp
+where pp.Color = 'black'
+
+UNION 
+
+select pp.ProductNumber, pp.SafetyStockLevel, pp.DaysToManufacture, pp.Class, pp.Color  from Production.Product pp
+where pp.Color <>'black'
+
+-- IGNORAR A LIMITAÇÃO NA QUANTIDADE DE COLUNAS USANDO O NULL NO LUGAR DA COLUNA
+select pp.ProductNumber, pp.SafetyStockLevel, pp.DaysToManufacture,	null, null  from Production.Product pp
+where pp.Color = 'black'
+
+UNION 
+
+select pp.ProductNumber, pp.SafetyStockLevel, pp.DaysToManufacture, pp.Class, pp.Color  from Production.Product pp
+where pp.Color <>'black'
+
+-- ALIAS PARA COLUNA
+-- No sql o alias das colunas é representado pela 1ª consulta. Isso por que ele vai se replicas para as tebelas unificadas
+select  pp.ProductNumber      as Produto, 
+		pp.SafetyStockLevel   as Stoque, 
+		pp.DaysToManufacture  as Dias_Fabrica, 
+		pp.Class              as Classe, 
+		pp.Color              as Cor
+		from Production.Product pp
+        where pp.Color = 'black' and pp.Class is not null
+
+UNION
+
+select pp.ProductNumber, 
+	   pp.SafetyStockLevel, 
+	   pp.DaysToManufacture, 
+	   pp.Class, 
+	   pp.Color  
+	   from Production.Product pp
+       where pp.Color = 'RED' and pp.Class = 'l'
+
+-- UNION FUNCIONA COMO O (DISTINCT) - O UNIO ALL TRAZ TUDO INDEPENDENTE DE SER DIFERENTE OU NÃO.
+
+select pp.Name, 
+	pp.ProductNumber, 
+	pp.Class, 
+	pp.Color
+	from Production.Product pp
+
+union all -- Usando o UNION o resultado é 504 rows. Utilizando o UNION ALL o resultado é 10008 rows
+
+select pp.Name, 
+	pp.ProductNumber, 
+	pp.Class, 
+	pp.Color
+	from Production.Product pp
+
+	order by 1
+
+-- SEQUENCES
+
+--O que são sequences?
+-- Como criá-las
+-- Alterar sequences
+-- Apagar sequences
+-- Restartar o contador das sequences.
+
+select * from Person.Person 
+select MAX(BusinessEntityID) from Person.Person -- Para verificar o ultimo ID ou PK adiocionada na tebela.
+select MAX(BusinessEntityID) + 1 from Person.Person -- + 1 para saber o próximo valor que será usado como pk
+
+create sequence seq_teste01; -- Sintaxe para criar uma SEQUENCE.
+select next value for seq_teste01; -- Chamando uma sequence que vai baixando o ultimo valor após cada execução.
+
+create sequence seq_teste02 -- Sintaxe para criar uma sequence que começa com 1 e incrementa d e 1 em 1
+		as numeric          -- e de forma crescente.
+		start with 1
+		increment by 1;
+
+drop sequence seq_teste01 -- Deletando a sequence seq_teste01.
+
+create sequence seq_teste02 -- Sintaxe para criar uma sequence com valor definido.
+		start with 1
+		increment by 1
+		minvalue 1
+		maxvalue 1000;
+
+alter sequence seq_teste02 -- Restart do sequence para ter um novo valor final.
+		restart with 100
+		maxvalue 10000
+		no cache;
+
+select * from sys.sequences -- chamando uma sequence.
+
+declare @valuno varchar(max);
+	set @valuno  = next value for seq_teste01;
+select @valuno;
+
+--INSERT E SUAS VARIAÇÕES
+
+-- INSERINDO DADOS NA TABELA --
+exec sp_columns Alunos
+
+--INSERT INTO dbo.Alunos
+--	(ID_Aluno,Nome,Data_Nascimento,Sexo,Data_Cadastro,Login_Cadastro)
+--VALUES 
+--	(3,'Marcio',GETDATE(),'M',GETDATE(),'142857');
+
+--	update Alunos set Data_Nascimento = '1978-09-11' where ID_Aluno = 3;
+
+--	select * from Alunos where Data_Cadastro >= CONVERT(date,GETDATE());
+
+--	exec sp_columns cursos;
+--	select MAX(ID_Curso) from Cursos
+
+--insert into Cursos	
+	--(ID_Curso, Nome_Curso,Data_Cadastro, login_Cadastro)
+--values
+	--(2,'PHP',GETDATE(),'142857');
+
+	--select * from Cursos where Data_Cadastro >= CONVERT(date,GETDATE());
+
+-- FAZENDO A INSERÇÃO VIA DECLARAÇÃO DE VARIÁVEL PEGANDO O ULTIMO VALOR
+
+--DECLARE @vID INT
+--SELECT @vID = MAX(id_curso) + 1 FROM Cursos;
+
+--insert into Cursos	
+	--(ID_Curso, Nome_Curso,Data_Cadastro, login_Cadastro)
+--values
+	--(@vID,'SqlServer',GETDATE(),'142857');
+
+	--select * from Cursos
+
+	-- INSERT COM A CRIAÇÃO DE UMA NOVA TABELA TEMPORÁRIA
+
+-- INSERT COM A CRIAÇÃO DE UMA NOVA TABELA TEMPORÁRIA
+
+select *
+	into bkpCursos -- Com essa sintaxe uma tabela clone será criada
+	from Cursos;
+
+	select * from bkpCursos
+
+--drop table bkpCursos;
+--delete from bkpCursos; -- Removendo todo o conteudo da tabela curso.
+
+
+--SQL SERVER - 27 - DROP - apagando objetos do banco (procedures, tables, sequences, entre outros)
+
+--Comando que traz todas as tabelas criadas no banco de dados
+select * from sys.tables
+select * from sys.sequences
+
+select * from Person.Person
+select * from Production.Location
+select * into Production.LocationTemp
+		from Production.Location
+select * from Production.locationTemp
+
+-- Apagando tabelas
+drop table Production.LocationTemp
+
+-- Apagando sequences
+drop sequence seq_teste01
+
+-- Trabalhanado com indices --
+CREATE INDEX indLocationID on Production.Location(LocationID);
+
+-- Apagando Indice --
+DROP INDEX production.Location.indLocationID
+
+-- Criando e Apagando procedures
+CREATE PROCEDURE testePerson
+as
+select BusinessEntityID, FirstName, LastName  from Person.Person where LastName like 'S%';
+
+-- Chamando uma PROCEDURE
+exec testePerson
+
+-- Apagando uma PROCEDURE
+DROP PROCEDURE testePerson
+
+-- Se conectando a outro banco na mesma sessão
+
+USE SQL_DB_1;
+GO
+
+select * from Alunos
+select * from bkpCursos
+
+-- Comando para chamar todas as Primary Keys criada no banco
+SELECT NAME FROM sys.key_constraints WHERE name LIKE 'pk%';
+
+--SQL SERVER - 28 - ALTER TABLE - alterando sua tabela de dados
+
+-- Criando uma tabela temporária
+
+select * into tTemp
+from Person.Person
+
+select Email, * from tTemp
+-- Comando para detalhar uma tabela
+exec sp_columns tTemp;
+
+-- Adicionar coluna na tabela --
+
+ALTER TABLE tTemp
+	ADD CPF NUMERIC(11)
+
+	UPDATE tTemp set CPF = 03234000433 WHERE BusinessEntityID = 1
+
+ALTER TABLE tTemp
+	ADD EMAIL VARCHAR(50)
+
+UPDATE tTemp SET EMAIL = 'marcioplay@gmail.com' WHERE BusinessEntityID = 2
+
+-- Apagando coluna de uma tabela
+ALTER TABLE tTemp
+	DROP COLUMN EMAIL, CPF;
+
+	ALTER TABLE tTemp
+	ADD CPF NUMERIC(11);
+
+	SELECT * FROM tTemp
+-- Alterando o tipo e uma coluna
+	ALTER TABLE tTemp
+	ALTER COLUMN CPF VARCHAR(11)
+
+	exec sp_columns tTemp
+
+-- SQL SERVER - 29 - UPDATE - Manipular os dados de suas tabelas
+
+select  * from Person.Address
+
+select * into tPersonAddress
+from Person.Address
+
+select * from tPersonAddress
+select * from tPersonAddress where AddressLine2 is null
+
+exec sp_columns tPersonAddress
+
+UPDATE tPersonAddress SET AddressLine2 = 'NULL';
+UPDATE tPersonAddress 
+	SET AddressLine2 = 'NULL' 
+	where AddressID between 1 and 60
+
+	
+-- SQL SERVER - 30 - TRANSACTION - Protegendo seus dados com o uso de
+
+select COUNT(*) from Production.Product
+
+--BEGIN TRANSACTION - Inicia uma transação
+--ROLLBACK TRANSACTION - Desfaz uma transação
+--COMMIT; - Confirma uma transação. Ou seja, grava as alterações no banco.
+
+select * into temp_Production_Product
+from Production.Product
+
+select COUNT(*) from temp_Production_Product
+select distinct Name from temp_Production_Product
+SELECT * FROM temp_Production_Product WHERE Name LIKE 'g%'
+select * from temp_Production_Product WHERE ProductID = 1
+-- Adjustable Race
+
+BEGIN TRANSACTION;
+ UPDATE temp_Production_Product SET Name = LOWER(Name); 
+ROLLBACK;
+
+--COMMIT;
+---------------
+
+DECLARE @TR1 VARCHAR(20);
+	SELECT @TR1 = 'Transação Delete';
+
+BEGIN TRANSACTION @TR1;
+	DELETE FROM  temp_Production_Product WHERE Name LIKE 'G%'
+COMMIT TRANSACTION @TR1;
+
+-- Multiplos pontos de Transactions
+-- Nomeando as transações
+
+/*
+O exemplo a seguir cria uma tabela, gera três níveis de transações aninhadase,
+em seguida, confirma a trransação aninhada. Embora cada instrução COMMIT TRANSACTION
+tenha um parametro transaction_name não há nenhuma relação entre as instruções
+COMMIT TRANSACTION E BEGIN TRANSACTION. Os parâmetros trransaction_name ajudam
+o programador a assegurar que o número correto de confirmações seja codificado
+para decrementar @@TRANCOUNT para 0 e, assim, confirmar a trnsação externa.
+*/
+
+-- O comando a seguir informa a quantidade de transações ativas no momento.
+SELECT @@TRANCOUNT --  
+
+-- O comando abaixo, varre o banco para saber se á uma tebela com o nome em destaque por ''
+-- Encontrando, ele deleta a tabela usando o comando após o IF.
+IF OBJECT_ID('temp_Production_Product', 'U') is not null
+ DROP TABLE temp_Production_Product;
+GO
+
+CREATE TABLE tabelaTeste (
+ ID INT PRIMARY KEY, LETRA VARCHAR(10));
+GO
+
+-- Iniciar a váriável de controle de tramsactions @@TRANCPUNT para 1
+
+BEGIN TRANSACTION TR1
+ PRINT 'Transaction : contador depois do BEGIN = ' + CAST(@@TRANCOUNT as NVARCHAR(10));
+	INSERT INTO tabelaTeste VALUES (1,'A');
+
+BEGIN TRANSACTION TR2
+	PRINT 'Transaction : contador depois do 2º BEGIN = ' + CAST(@@TRANCOUNT as NVARCHAR(10));
+	INSERT INTO tabelaTeste VALUES (2,'B');
+
+BEGIN TRANSACTION TR3
+	PRINT 'Transaction : contador depois do 3º BEGIN = ' + CAST(@@TRANCOUNT as NVARCHAR(10));
+	INSERT INTO tabelaTeste VALUES (3,'C');
+
+COMMIT TRANSACTION TR2;
+	PRINT 'Transaction : contador depois do COMMIT TR2 = ' + CAST(@@TRANCOUNT as NVARCHAR(10));
+
+COMMIT TRANSACTION TR1;
+	PRINT 'Transaction : contador depois do COMMIT TR1 = ' + CAST(@@TRANCOUNT as NVARCHAR(10));
+
+COMMIT TRANSACTION TR3;
+	PRINT 'Transaction : contador depois do COMMIT TR3 = ' + CAST(@@TRANCOUNT as NVARCHAR(10));
