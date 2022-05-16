@@ -1,0 +1,44 @@
+C# Pilares Básicos da Orientação a Objetos.
+**************************
+
+1º Abstração:
+Conceitos: Pegar os conceitos do mundo real, e trazer apenas o que é relevante para dentro do software.
+
+Identificação: ID;
+Atributos;
+Comportamentos;
+
+**************************
+2º Herança:
+A herança, surgi para que você tenha reuso de código.
+
+Exemplo de herança entre classes
+
+public class Animal {
+  void Respirar(){}
+}
+
+class Humano : Animal {
+ // Nesse caso, Humano herda de animal.
+
+}
+
+Humano h = new Humano();
+h.Respirar();
+
+
+Abordagens:
+Dica: Sempre prefira composição em vez de herança. Na composição, as opções são maiores e mais flexíveis.
+
+ctrl + C, ctrl + V - Feri o DRY - Não repita você mesmo.
+Herança:
+
+Ex: uno é um(a) carro. Cachorro é um animal...
+Composição;
+Ex: organização tem um(a)empresa. Uma empresa tem mais setores...
+
+
+
+3º Encapsulamento
+
+4º Polimorfismo
