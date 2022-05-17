@@ -37,8 +37,25 @@ Ex: uno é um(a) carro. Cachorro é um animal...
 Composição;
 Ex: organização tem um(a)empresa. Uma empresa tem mais setores...
 
-
+**********************************
 
 3º Encapsulamento
+
+No C#, o softwrae feiro em cima de classes. 
+
+Nivel de visibilidade
+
+1º public - Qulauqre pessoa ou projeto pode acessar essa classe, membro, atributos e comportamentos.
+
+2º internal - Apenas dentro do projeto
+
+3º procted - Transmitido por herança.
+
+4º private - Visivel apenas dentro da classe.
+
+Dicas: O mais desafiante na OO é o encapsulamento. O que pode ou não pode ficar público. A dica seria de inicio deixar como privado, e caso ocorra a necessida de alterar a visibilidade você altera. Também cuidado em deixar tudo público, e nçao gerar dependência demais no projeto.
+
+
+**********************************
 
 4º Polimorfismo
