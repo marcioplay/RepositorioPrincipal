@@ -49,7 +49,7 @@ Nivel de visibilidade
 
 2º internal - Apenas dentro do projeto
 
-3º procted - Transmitido por herança.
+3º protected- Transmitido por herança.
 
 4º private - Visivel apenas dentro da classe.
 
