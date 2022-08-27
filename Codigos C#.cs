@@ -13,6 +13,45 @@ Acessar o Visal Studio via Terminal para acompanhar o curso CFB
 
 
 *******************************************
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace CSharpOrientacaoObjeto
+{
+    class ConversorDeMoeda
+    {
+        public static double IOF = 6.0 / 100;
+
+        public static double DolarParaReal(double cotacao, double quantia)
+        {
+            double total = cotacao * quantia;
+            return total + total * IOF;
+
+        }
+    }
+}
+
+      static void Main()
+        {
+            Console.WriteLine("*************************");
+            Console.WriteLine("C#-Orientacão a Objetos");
+            Console.WriteLine("*************************");
+
+            Console.WriteLine("Programa de Conversão de Moeda");
+            Console.WriteLine();
+            Console.Write("Qual á a cotação do dolar? ");
+            double cotacao = double.Parse(Console.ReadLine(), CultureInfo.InvariantCulture);
+            Console.Write("Quantos dólares você vai comprar? : ");
+            double quantia = double.Parse(Console.ReadLine(), CultureInfo.InvariantCulture);
+
+            double resultado = ConversorDeMoeda.DolarParaReal(cotacao, quantia);
+
+            Console.Write($"Valor a ser pago em reais é: {resultado.ToString("c")}");
+            Console.WriteLine();
+            Console.WriteLine("Obrigado!");
+
+********************************************
 
 Algoritimo para converter real para dolar
 
