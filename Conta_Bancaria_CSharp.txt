@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Globalization;
+
+namespace CSharpOrientacaoObjeto {
+    public class ContaBancaria {
+
+        public int Numero { get; private set; }
+        public string Titular { get; set; }
+        public double Saldo { get; private set; }
+
+        public ContaBancaria(int numero, string titular) {
+            Numero = numero;
+            Titular = titular;
+
+        }
+
+        public ContaBancaria(int numero, string titular, double saldo) : this(numero, titular) {
+            Saldo = saldo;
+        }
+
+        public override string ToString() {
+            return $"Dados da conta: \nConta: {Numero}\nTitular: {Titular}\nSaldo R$: {Saldo.ToString("f2", CultureInfo.InvariantCulture)}";
+        }
+        static void Main() {
+
+            ContaBancaria conta;
+            
+            Console.Write("Entre o número da conta: ");
+            int numero = int.Parse(Console.ReadLine());
+            Console.Write("Entre o número do títular: ");
+            string titular = Console.ReadLine();
+            Console.Write   ("Haverá deposito inicial (s/n)? ");
+            char resp = char.Parse(Console.ReadLine());
+
+            if(resp == 'S' || resp == 's') {
+                Console.Write("Entre o valor deposito inicial: ");
+                double depositoInicial = double.Parse(Console.ReadLine(), CultureInfo.InvariantCulture);
+                conta = new ContaBancaria(numero, titular, depositoInicial);
+            }
+            else {
+                conta = new ContaBancaria(numero, titular);
+            }
+
+            Console.WriteLine();
+            Console.WriteLine(conta);
+
+        }
+    }
+}
+
+
+
+
+
+
+
