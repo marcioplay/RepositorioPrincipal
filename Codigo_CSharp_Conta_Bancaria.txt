@@ -1,0 +1,90 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Globalization;
+
+namespace CSharpOrientacaoObjeto {
+    public class ContaBancaria {
+
+        public int Numero { get; private set; }
+        public string Titular { get; set; }
+        public double Saldo { get; private set; }
+
+        public ContaBancaria(int numero, string titular) {
+            Numero = numero;
+            Titular = titular;
+
+        }
+
+        public void AdicionarSaldoConta(double saldo) {
+            Saldo += saldo;
+        }
+
+        public void RemoverSaldoConta(double saldo) {
+            Saldo -= saldo + 5.0;
+        }
+
+        public ContaBancaria(int numero, string titular, double saldo) : this(numero, titular) {
+            Saldo = saldo;
+        }
+
+        public override string ToString() {
+            return $"Dados da conta: \nConta: {Numero}\nTitular: {Titular}\nSaldo R$: {Saldo.ToString("f2", CultureInfo.InvariantCulture)}";
+        }
+
+
+        static void Main() {
+
+            Console.WriteLine("#######################");
+            Console.WriteLine("Programa Conta Bancária");
+            Console.WriteLine("#######################");
+
+            ContaBancaria conta;
+            Console.WriteLine();
+
+            Console.Write("Entre o número da conta: ");
+            int numero = int.Parse(Console.ReadLine());
+            Console.Write("Entre o número do títular: ");
+            string titular = Console.ReadLine();
+            Console.Write("Haverá deposito inicial (s/n)? ");
+            char resp = char.Parse(Console.ReadLine());
+
+            if (resp == 'S' || resp == 's') {
+                Console.Write("Entre o valor deposito inicial R$: ");
+                double depositoInicial = double.Parse(Console.ReadLine(), CultureInfo.InvariantCulture);
+                conta = new ContaBancaria(numero, titular, depositoInicial);
+            }
+            else {
+                conta = new ContaBancaria(numero, titular);
+            }
+
+            Console.WriteLine();
+            Console.WriteLine(conta);
+
+            Console.WriteLine();
+            Console.Write("Entre um valor para depósito R$: ");
+            double quantiaDeposito = double.Parse(Console.ReadLine(), CultureInfo.InvariantCulture);
+            conta.AdicionarSaldoConta(quantiaDeposito);
+            Console.WriteLine("Dados da conta atualizados:");
+            Console.WriteLine(conta);
+
+            Console.WriteLine();
+            Console.WriteLine("Entre com o valor para saque R$: ");
+            double quantiaSaque = double.Parse(Console.ReadLine(), CultureInfo.InvariantCulture);
+            conta.RemoverSaldoConta(quantiaSaque);
+            Console.WriteLine("Dados da conta atualizado: ");
+            Console.WriteLine(conta);
+
+
+
+
+        }
+    }
+}
+
+
+
+
+
+
+
