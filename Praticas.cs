@@ -1511,6 +1511,41 @@ namespace CursoCSharpe2.Exercicios
                 //    Console.WriteLine(celular.Assistente());
                 //}
 
+            List<string> nomes = new List<string> { "Marcio", "Jouze" };
+
+            nomes.Remove("Marcio");
+            nomes.Add("Matheus");
+            nomes.Add("Ana");
+            nomes.Add("Paulo");
+            nomes.Add("Pedro");
+            nomes.Insert(2, "Amarelo");
+
+
+            foreach (var nome in nomes) {
+                Console.WriteLine(nome);
+            }
+
+            Console.WriteLine(nomes.Count);
+            Console.WriteLine();
+            Console.WriteLine("********************");
+            string s1 = nomes.Find(x => x[0] == 'A');
+            Console.WriteLine($"Firt 'A': {s1}");
+
+            string s2 = nomes.FindLast(x => x[0] == 'A');
+            Console.WriteLine($"Last 'A': {s2}");
+
+            int s3 = nomes.FindIndex(x => x[0] == 'A');
+            Console.WriteLine("First position 'A': {0}", s3);
+
+            int s4 = nomes.FindLastIndex(x => x[0] == 'A');
+            Console.WriteLine("Last position 'A': {0}", s4);
+
+            List<string> nomes2 = nomes.FindAll(x => x.Length == 5);
+            foreach (var obj in nomes2) {
+                Console.WriteLine(obj);
+            }
+
+
 
                 // ***** Orientação a Objetos - Polimorfismo *****
 
